@@ -21,6 +21,7 @@ export class TicketsController {
 
   @Get()
   async getTickets() {
+    // throw new NotFoundException();
     await randomDelay();
     return this.ticketsService.tickets();
   }

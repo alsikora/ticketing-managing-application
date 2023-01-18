@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/react';
+import { render, screen, fireEvent } from '@testing-library/react';
 
 import Modal from './modal';
 
@@ -31,5 +31,7 @@ describe('Modal', () => {
 
     expect(screen.getByRole('heading')).toHaveTextContent('Test modal');
     expect(screen.getByText('Very important information!')).toBeTruthy();
+    fireEvent.click(screen.getByText('Cancel'));
+    expect(mockHandleCancel).toHaveBeenCalledTimes(1)
   });
 });

@@ -4,8 +4,7 @@ import TicketDetails from './details';
 
 describe('TicketDetails', () => {
     it('should render successfully', () => {
-        const {baseElement} = render(<TicketDetails
-            ticket={{id: 1, description: 'test description', assigneeId: 1, completed: true}}/>);
+        const {baseElement} = render(<TicketDetails users={[{id: 1, name: 'Alex'}]}/>);
         expect(baseElement).toBeTruthy();
     });
 });

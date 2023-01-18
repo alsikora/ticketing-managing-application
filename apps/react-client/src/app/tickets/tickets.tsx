@@ -4,6 +4,7 @@ import Modal from '../components/modal/modal';
 import TicketItem from './ticketItem';
 import { createTicket, getAllTickets } from '../api';
 import StatusFilter from './statusFilter';
+import { logger } from 'nx/src/utils/logger';
 
 export interface TicketsProps {
 }
@@ -14,11 +15,20 @@ export function Tickets(props: TicketsProps) {
   const [showModal, setShowModal] = useState(false);
   const [newTicketDescription, setNewTicketDescription] = useState('');
   const [ticketsToDisplay, setTicketToDisplay] = useState([] as Ticket[]);
+  const [filterText, setFilterText] = useState('');
+  const [showStatus, setShowStatus] = useState('');
 
   async function fetchTickets() {
-    const tickets = await getAllTickets().then();
-    setTickets(tickets);
-    setTicketToDisplay(tickets);
+    const tickets = await getAllTickets();
+
+    if (tickets.statusCode && tickets.statusCode !== 200) {
+      setTickets([]);
+      setTicketToDisplay([]);
+    } else {
+      setTickets(tickets);
+      setTicketToDisplay(tickets);
+    }
+
     setIsLoading(false);
   }
 
@@ -26,23 +36,33 @@ export function Tickets(props: TicketsProps) {
     fetchTickets();
   }, []);
 
-  const handleCancel = () => setShowModal(false);
+  const handleCancel = () => {
+    setShowModal(false);
+    setNewTicketDescription('');
+  }
   const handleSave = () => {
     setIsLoading(true);
     createTicket(newTicketDescription).then(data => {
       fetchTickets();
     });
     setShowModal(false);
+    setNewTicketDescription('');
   }
 
   const handleShowAll = () => {
     setTicketToDisplay(tickets);
   }
   const handleShowComplete = () => {
-    setTicketToDisplay(tickets.filter(t => t.completed))
+    setTicketToDisplay(ticketsToDisplay.filter(t => t.completed))
+
   }
   const handleShowIncomplete = () => {
-    setTicketToDisplay(tickets.filter(t => !t.completed))
+    setTicketToDisplay(ticketsToDisplay.filter(t => !t.completed))
+  }
+
+  const filterTickets = (text: string) => {
+    setFilterText(text);
+    setTicketToDisplay(ticketsToDisplay.filter(t => t.description.indexOf(filterText) > -1))
   }
 
   return (
@@ -51,6 +71,7 @@ export function Tickets(props: TicketsProps) {
           <h2 className="text-xl font-bold leading-tight tracking-tight text-sky-500">Tickets</h2>
           <StatusFilter showAll={handleShowAll} showComplete={handleShowComplete}
                         showIncomplete={handleShowIncomplete}/>
+          <input value={filterText} onChange={(e: ChangeEvent<HTMLInputElement>) => filterTickets(e.target.value)}/>
           <button type="button"
                   onClick={() => setShowModal(true)}
                   className="inline-flex items-center rounded-md border border-transparent bg-sky-500 px-4 py-2 text-sm font-medium text-white">
